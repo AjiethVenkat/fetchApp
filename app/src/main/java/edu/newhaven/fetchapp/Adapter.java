@@ -12,7 +12,6 @@ import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ItemViewHolder> {
 
-
     private List<ItemModel> item_Model_List;
 
     public Adapter() {
@@ -20,18 +19,22 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ItemViewHolder> {
         item_Model_List = new ArrayList<>();
     }
 
+    /* Class instance methods */
     public void setItem_Model_List(List<ItemModel> item_Model_List){
+
         this.item_Model_List = item_Model_List;
         notifyDataSetChanged();
 
     }
 
+    /* recycler adapter methods */
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_cell, parent, false);
         return new ItemViewHolder(itemView);
-    }
 
+    }
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
@@ -43,13 +46,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ItemViewHolder> {
         holder.text_name.setText(model.name);
     }
 
-
     @Override
     public int getItemCount() {
         return item_Model_List.size();
     }
 
-
+/* Item View Holder class */
  public static class ItemViewHolder extends RecyclerView.ViewHolder {
 
      TextView text_id;
@@ -65,4 +67,5 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ItemViewHolder> {
      }
  }
 }
+/* End of Line */
 

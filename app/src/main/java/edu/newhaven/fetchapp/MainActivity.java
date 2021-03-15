@@ -25,65 +25,73 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private RecyclerView recyclerView;
     private Adapter itemAdapter;
     private RequestQueue requestQueue;
     private final String JSON_URL = " https://fetch-hiring.s3.amazonaws.com/hiring.json";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* Used Voleey for JSON get request */
         requestQueue = Volley.newRequestQueue(this);
 
-        recyclerView = (RecyclerView)findViewById(R.id.recyclerView);
-
+        /* Adapter object */
         itemAdapter = new Adapter();
 
-
+        /* recycler View */
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setAdapter(itemAdapter);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager( new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
 
-
+        /* JSON request */
         JsonArrayRequest request = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+
                 List<ItemModel> tempList = new ArrayList<>();
                 List<UserInfo> listId = new ArrayList<>();
+
                 try {
 
-                   for (int i=0;i < response.length();i++) {
+                    for (int i = 0; i < response.length(); i++) {
 
-                       /* The JSON response is treated as object */
-                       JSONObject json_Object = response.getJSONObject(i);
-                       String n = json_Object.getString("listId");
-                       String objId = json_Object.getString("id");
-                       String objName = json_Object.getString("name");
+                        /* The JSON response is treated as object */
+                        JSONObject json_Object = response.getJSONObject(i);
 
-                       if(!objName.equals("null") && !objName.isEmpty()) {
-                           listId.add(new UserInfo(objId, n, objName));
-                       }
-                       Collections.sort(listId, new Comparator<UserInfo>() {
-                           @Override
-                           public int compare(UserInfo t0, UserInfo t1) {
-                               return t0.listId.compareTo(t1.listId);
-                           }
-                       });
-                   }
+                        String n = json_Object.getString("listId");
+                        String objId = json_Object.getString("id");
+                        String objName = json_Object.getString("name");
 
-                   Log.d("MainActivity", String.valueOf(listId.get(0).listId));
+                        if (!objName.equals("null") && !objName.isEmpty()) {
+                            listId.add(new UserInfo(objId, n, objName));
+                        }
 
-                   for(int j=0;j<listId.size();j++){
-                       ItemModel model = new ItemModel();
-                       model.id = listId.get(j).id;
-                       model.listId = listId.get(j).listId;
-                       model.name = listId.get(j).name;
-                       tempList.add(model);
-                   }
+                        /* Used collections to sort the listID */
+                        Collections.sort(listId, new Comparator<UserInfo>() {
+                            @Override
+                            public int compare(UserInfo t0, UserInfo t1) {
+                                return t0.listId.compareTo(t1.listId);
+                            }
+                        });
+                    }
+
+                    Log.d("MainActivity", String.valueOf(listId.get(0).listId));
+
+                    for (int j = 0; j < listId.size(); j++) {
+
+                        ItemModel model = new ItemModel();
+
+                        model.id = listId.get(j).id;
+                        model.listId = listId.get(j).listId;
+                        model.name = listId.get(j).name;
+
+                        /* added the data to arrayList */
+                        tempList.add(model);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -97,20 +105,22 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
             }
-
         });
 
         requestQueue = Volley.newRequestQueue(MainActivity.this);
         requestQueue.add(request);
     }
 
+    /* private class for the arrayList to save data */
     private class UserInfo {
-        String id,listId,name;
-        public UserInfo(String id, String listId,String name) {
-            this.listId=listId;
-            this.id=id;
-            this.name =name;
+        String id, listId, name;
+
+        public UserInfo(String id, String listId, String name) {
+            this.listId = listId;
+            this.id = id;
+            this.name = name;
         }
     }
 }
 
+/* End Of line */
