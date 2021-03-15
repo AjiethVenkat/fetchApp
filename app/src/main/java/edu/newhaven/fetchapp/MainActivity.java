@@ -5,13 +5,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -19,6 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,49 +43,74 @@ public class MainActivity extends AppCompatActivity {
 
         itemAdapter = new Adapter();
 
+
         recyclerView.setAdapter(itemAdapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager( new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
 
 
-        StringRequest request = new StringRequest(Request.Method.GET, JSON_URL, new Response.Listener<String>() {
+        JsonArrayRequest request = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
             @Override
-            public void onResponse(String response) {
+            public void onResponse(JSONArray response) {
                 List<ItemModel> tempList = new ArrayList<>();
-
+                List<UserInfo> listId = new ArrayList<>();
                 try {
-                    /* The JSON response is treated as object */
-                    JSONObject json_Object = new JSONObject(response);
-                    JSONArray user_ArrayObject = json_Object.getJSONArray("");
 
-                    for (int i = 0; i < user_ArrayObject.length(); i++) {
-                        JSONObject single_User_Object = user_ArrayObject.getJSONObject(i);
+                   for (int i=0;i < response.length();i++) {
 
-                        ItemModel model = new ItemModel();
+                       /* The JSON response is treated as object */
+                       JSONObject json_Object = response.getJSONObject(i);
+                       String n = json_Object.getString("listId");
+                       String objId = json_Object.getString("id");
+                       String objName = json_Object.getString("name");
 
-                        /* Did not retrieve id from JSON since it was not required */
-                        model.id = single_User_Object.getInt("id");
-                       // model.listId = single_User_Object.getInt("listId");
-                       // model.name = single_User_Object.getString("name");
+                       if(!objName.equals("null") && !objName.isEmpty()) {
+                           listId.add(new UserInfo(objId, n, objName));
+                       }
+                       Collections.sort(listId, new Comparator<UserInfo>() {
+                           @Override
+                           public int compare(UserInfo t0, UserInfo t1) {
+                               return t0.listId.compareTo(t1.listId);
+                           }
+                       });
+                   }
 
-                        tempList.add(model);
+                   Log.d("MainActivity", String.valueOf(listId.get(0).listId));
 
-                    }
+                   for(int j=0;j<listId.size();j++){
+                       ItemModel model = new ItemModel();
+                       model.id = listId.get(j).id;
+                       model.listId = listId.get(j).listId;
+                       model.name = listId.get(j).name;
+                       tempList.add(model);
+                   }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 /* Sending the data to adapter to populate each cell */
                 itemAdapter.setItem_Model_List(tempList);
-
             }
+
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
             }
+
         });
 
         requestQueue = Volley.newRequestQueue(MainActivity.this);
         requestQueue.add(request);
     }
+
+    private class UserInfo {
+        String id,listId,name;
+        public UserInfo(String id, String listId,String name) {
+            this.listId=listId;
+            this.id=id;
+            this.name =name;
+        }
+    }
 }
+

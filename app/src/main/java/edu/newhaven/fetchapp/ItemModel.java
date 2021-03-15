@@ -1,8 +1,13 @@
 package edu.newhaven.fetchapp;
 
+import java.util.List;
+
 public class ItemModel {
 
-    public int id;
-    public int listId;
+    public String id;
+    public String  listId;
     public String name;
+
+
 }
+
